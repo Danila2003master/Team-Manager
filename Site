@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Управление проектами</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <style type="text/css">
+
+    body {
+      text-align: center;
+      margin: 10;
+      font-family: Verdana, Arial, sans-serif;
+      font-size: 16px;
+    }
+
+    h1 {
+      margin-bottom: 50px;
+      font-weight: bold;
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    input {
+      display: inline-block;
+      margin: 20px auto;
+      border: 2px solid #eee;
+      padding: 10px 20px;
+      font-family: Verdana, Arial, sans-serif;
+      font-size: 16px;
+    }
+
+    .tdItem {
+      text-align: left;
+      padding: 10px;
+      cursor: default;
+      border-radius: 7px;
+    }
+
+    .tdItem:hover {
+      background-color: lightblue;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1>Управление проектами</h1>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3">
+        <h2 class="todo__caption">Сделать</h2>
+        <div id="tdl1App">
+          <input type="text" class="form-control" placeholder="Новая задача">
+          <div class="tdl1Div">
+            <ul class="List list-unstyled">
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3">
+        <h2 class="todo__caption">Позвонить</h2>
+        <div id="tdl2App">
+          <input type="text" class="form-control" placeholder="Новая задача">
+          <div class="tdl2Div">
+            <ul class="List list-unstyled">
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3">
+        <h2 class="todo__caption">Написать</h2>
+        <div id="tdl3App">
+          <input type="text" class="form-control" placeholder="Новая задача">
+          <div class="tdl3Div">
+            <ul class="List list-unstyled">
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3">
+        <h2 class="todo__caption">Идеи</h2>
+        <div id="tdl4App">
+          <input type="text" class="form-control" placeholder="Новая задача">
+          <div class="tdl4Div">
+            <ul class="List list-unstyled">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js">
+  </script>
+  <script>
+var big_object = {
+  lists: [
+    { list: $('#tdl1App ul') },
+    { list: $('#tdl2App ul') },
+    { list: $('#tdl3App ul') },
+    { list: $('#tdl4App ul') },
+  ],
+  masks: [
+    { mask: 'tdl1_' },
+    { mask: 'tdl2_' },
+    { mask: 'tdl3_' },
+    { mask: 'tdl4_' },
+  ],
+  element_id: [
+    { el: 0 },
+    { el: 0 },
+    { el: 0 },
+    { el: 0 },
+  ],
+  number_id: [
+    { num: 0 },
+    { num: 0 },
+    { num: 0 },
+    { num: 0 },
+  ]
+}
+// Функция, которая берёт из памяти наши задачи и делает из них список
+function showTasks() {
+  // Узнаём размер хранилища
+  var Storage_size = localStorage.length;
+  // Если в хранилище что-то есть…
+  if (Storage_size > 0) {
+    // то берём и добавляем это в задачи  
+    for (var i = 0; i < Storage_size; i++) {
+      // Берём очередной элемент из хранилища
+      var key = localStorage.key(i);
+      // и в новом цикле сразу проверяем, в какую колонку его отправить
+      for (var j = 0; j <= 3; j++) {
+        // Если объект попадает под фильтр любой из колонок…
+        if (key.indexOf(big_object.masks[j].mask) == 0) {
+          // отправляем его в соответствующую колонку, за этим следит переменная j
+          $('<li></li>').addClass('tdItem')
+            .attr('data-itemid', key)
+            .text(localStorage.getItem(key))
+            .appendTo(big_object.lists[j].list);
+        }
+      }
+    }
+  }
+}
+// Сразу вызываем эту функцию, вдруг в памяти уже остались задачи с прошлого раза
+showTasks();
+function pressed(e, col) {
+  if (e.keyCode != 13) return;
+  var str = e.target.value;
+  e.target.value = "";
+  // Если в поле ввода было что-то написано — начинаем обрабатывать
+  if (str.length > 0) {
+    // Принудительно обнуляем переменные
+    big_object.number_id[col].num = 0;
+    big_object.element_id[col].el = 0;
+    // Смотрите — вот тут мы вместо объекта List используем элемент массива, который содержит название этого объекта
+    big_object.lists[col].list.children().each(function (index, el) {
+      big_object.element_id[col].el = $(el).attr('data-itemid').slice(5);
+      if (big_object.element_id[col].el > big_object.number_id[col].num)
+        big_object.number_id[col].num = big_object.element_id[col].el;
+    })
+    big_object.number_id[col].num++;
+    // Отправляем новую задачу сразу в память
+    localStorage.setItem(big_object.masks[col].mask + big_object.number_id[col].num, str);
+    // и добавляем её в конец списка
+    $('<li></li>').addClass('tdItem')
+      .attr('data-itemid', big_object.masks[col].mask + big_object.number_id[col].num)
+      .text(str).appendTo(big_object.lists[col].list);
+  }
+}
+// Следим, когда пользователь напишет новую задачу в первое поле ввода и нажмёт Enter
+$('#tdl1App input').on('keydown', function (e) {
+  pressed(e, 0)
+});
+// Следим, когда пользователь напишет новую задачу во второе поле ввода и нажмёт Enter
+$('#tdl2App input').on('keydown', function (e) {
+  pressed(e, 1)
+});
+// Следим, когда пользователь напишет новую задачу в третье поле ввода и нажмёт Enter
+$('#tdl3App input').on('keydown', function (e) {
+  pressed(e, 2)
+});
+// Следим, когда пользователь напишет новую задачу в четвёртое поле ввода и нажмёт Enter
+$('#tdl4App input').on('keydown', function (e) {
+  pressed(e, 3)
+});
+// По клику на задаче — убираем её из списка
+$(document).on('click', '.tdItem', function (e) {
+  // Находим задачу, по которой кликнули
+  var jet = $(e.target);
+  // Убираем её из памяти
+  localStorage.removeItem(jet.attr('data-itemid'));
+  // и убираем её из списка
+  jet.remove();
+})
+
+
+
+
+  </script>
+</body>
+</html>
